@@ -18,9 +18,11 @@ package les
 
 import (
 	"math/big"
+	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	l "github.com/ethereum/go-ethereum/les"
 )
 
 
@@ -32,127 +34,127 @@ func FuzzLesNative(f *testing.F) {
 		if len(input) < 100 {
 			return
 		}
-		f := newFuzzer(input)
-		if f.exhausted {
+		fz := newFuzzer(input)
+		if fz.exhausted {
 			return
 		}
-		for !f.exhausted {
-			switch f.randomInt(8) {
+		for !fz.exhausted {
+			switch fz.randomInt(8) {
 			case 0:
 				req := &l.GetBlockHeadersPacket{
 					Query: l.GetBlockHeadersData{
-						Amount:  f.randomX(l.MaxHeaderFetch + 1),
-						Skip:    f.randomX(10),
-						Reverse: f.randomBool(),
+						Amount:  fz.randomX(l.MaxHeaderFetch + 1),
+						Skip:    fz.randomX(10),
+						Reverse: fz.randomBool(),
 					},
 				}
-				if f.randomBool() {
-					req.Query.Origin.Hash = f.randomBlockHash()
+				if fz.randomBool() {
+					req.Query.Origin.Hash = fz.randomBlockHash()
 				} else {
-					req.Query.Origin.Number = uint64(f.randomInt(f.chainLen * 2))
+					req.Query.Origin.Number = uint64(fz.randomInt(fz.chainLen * 2))
 				}
-				f.doFuzz(l.GetBlockHeadersMsg, req)
+				fz.doFuzz(l.GetBlockHeadersMsg, req)
 
 			case 1:
-				req := &l.GetBlockBodiesPacket{Hashes: make([]common.Hash, f.randomInt(l.MaxBodyFetch+1))}
+				req := &l.GetBlockBodiesPacket{Hashes: make([]common.Hash, fz.randomInt(l.MaxBodyFetch+1))}
 				for i := range req.Hashes {
-					req.Hashes[i] = f.randomBlockHash()
+					req.Hashes[i] = fz.randomBlockHash()
 				}
-				f.doFuzz(l.GetBlockBodiesMsg, req)
+				fz.doFuzz(l.GetBlockBodiesMsg, req)
 
 			case 2:
-				req := &l.GetCodePacket{Reqs: make([]l.CodeReq, f.randomInt(l.MaxCodeFetch+1))}
+				req := &l.GetCodePacket{Reqs: make([]l.CodeReq, fz.randomInt(l.MaxCodeFetch+1))}
 				for i := range req.Reqs {
 					req.Reqs[i] = l.CodeReq{
-						BHash:  f.randomBlockHash(),
-						AccKey: f.randomAddrHash(),
+						BHash:  fz.randomBlockHash(),
+						AccKey: fz.randomAddrHash(),
 					}
 				}
-				f.doFuzz(l.GetCodeMsg, req)
+				fz.doFuzz(l.GetCodeMsg, req)
 
 			case 3:
-				req := &l.GetReceiptsPacket{Hashes: make([]common.Hash, f.randomInt(l.MaxReceiptFetch+1))}
+				req := &l.GetReceiptsPacket{Hashes: make([]common.Hash, fz.randomInt(l.MaxReceiptFetch+1))}
 				for i := range req.Hashes {
-					req.Hashes[i] = f.randomBlockHash()
+					req.Hashes[i] = fz.randomBlockHash()
 				}
-				f.doFuzz(l.GetReceiptsMsg, req)
+				fz.doFuzz(l.GetReceiptsMsg, req)
 
 			case 4:
-				req := &l.GetProofsPacket{Reqs: make([]l.ProofReq, f.randomInt(l.MaxProofsFetch+1))}
+				req := &l.GetProofsPacket{Reqs: make([]l.ProofReq, fz.randomInt(l.MaxProofsFetch+1))}
 				for i := range req.Reqs {
-					if f.randomBool() {
+					if fz.randomBool() {
 						req.Reqs[i] = l.ProofReq{
-							BHash:     f.randomBlockHash(),
-							AccKey:    f.randomAddrHash(),
-							Key:       f.randomAddrHash(),
-							FromLevel: uint(f.randomX(3)),
+							BHash:     fz.randomBlockHash(),
+							AccKey:    fz.randomAddrHash(),
+							Key:       fz.randomAddrHash(),
+							FromLevel: uint(fz.randomX(3)),
 						}
 					} else {
 						req.Reqs[i] = l.ProofReq{
-							BHash:     f.randomBlockHash(),
-							Key:       f.randomAddrHash(),
-							FromLevel: uint(f.randomX(3)),
+							BHash:     fz.randomBlockHash(),
+							Key:       fz.randomAddrHash(),
+							FromLevel: uint(fz.randomX(3)),
 						}
 					}
 				}
-				f.doFuzz(l.GetProofsV2Msg, req)
+				fz.doFuzz(l.GetProofsV2Msg, req)
 
 			case 5:
-				req := &l.GetHelperTrieProofsPacket{Reqs: make([]l.HelperTrieReq, f.randomInt(l.MaxHelperTrieProofsFetch+1))}
+				req := &l.GetHelperTrieProofsPacket{Reqs: make([]l.HelperTrieReq, fz.randomInt(l.MaxHelperTrieProofsFetch+1))}
 				for i := range req.Reqs {
-					switch f.randomInt(3) {
+					switch fz.randomInt(3) {
 					case 0:
 						// Canonical hash trie
 						req.Reqs[i] = l.HelperTrieReq{
 							Type:      0,
-							TrieIdx:   f.randomX(3),
-							Key:       f.randomCHTTrieKey(),
-							FromLevel: uint(f.randomX(3)),
+							TrieIdx:   fz.randomX(3),
+							Key:       fz.randomCHTTrieKey(),
+							FromLevel: uint(fz.randomX(3)),
 							AuxReq:    uint(2),
 						}
 					case 1:
 						// Bloom trie
 						req.Reqs[i] = l.HelperTrieReq{
 							Type:      1,
-							TrieIdx:   f.randomX(3),
-							Key:       f.randomBloomTrieKey(),
-							FromLevel: uint(f.randomX(3)),
+							TrieIdx:   fz.randomX(3),
+							Key:       fz.randomBloomTrieKey(),
+							FromLevel: uint(fz.randomX(3)),
 							AuxReq:    0,
 						}
 					default:
 						// Random trie
 						req.Reqs[i] = l.HelperTrieReq{
 							Type:      2,
-							TrieIdx:   f.randomX(3),
-							Key:       f.randomCHTTrieKey(),
-							FromLevel: uint(f.randomX(3)),
+							TrieIdx:   fz.randomX(3),
+							Key:       fz.randomCHTTrieKey(),
+							FromLevel: uint(fz.randomX(3)),
 							AuxReq:    0,
 						}
 					}
 				}
-				f.doFuzz(l.GetHelperTrieProofsMsg, req)
+				fz.doFuzz(l.GetHelperTrieProofsMsg, req)
 
 			case 6:
-				req := &l.SendTxPacket{Txs: make([]*types.Transaction, f.randomInt(l.MaxTxSend+1))}
+				req := &l.SendTxPacket{Txs: make([]*types.Transaction, fz.randomInt(l.MaxTxSend+1))}
 				signer := types.HomesteadSigner{}
 				for i := range req.Txs {
 					var nonce uint64
-					if f.randomBool() {
-						nonce = uint64(f.randomByte())
+					if fz.randomBool() {
+						nonce = uint64(fz.randomByte())
 					} else {
-						nonce = f.nonce
-						f.nonce += 1
+						nonce = fz.nonce
+						fz.nonce += 1
 					}
-					req.Txs[i], _ = types.SignTx(types.NewTransaction(nonce, common.Address{}, big.NewInt(10000), params.TxGas, big.NewInt(1000000000*int64(f.randomByte())), nil), signer, bankKey)
+					req.Txs[i], _ = types.SignTx(types.NewTransaction(nonce, common.Address{}, big.NewInt(10000), params.TxGas, big.NewInt(1000000000*int64(fz.randomByte())), nil), signer, bankKey)
 				}
-				f.doFuzz(l.SendTxV2Msg, req)
+				fz.doFuzz(l.SendTxV2Msg, req)
 
 			case 7:
-				req := &l.GetTxStatusPacket{Hashes: make([]common.Hash, f.randomInt(l.MaxTxStatus+1))}
+				req := &l.GetTxStatusPacket{Hashes: make([]common.Hash, fz.randomInt(l.MaxTxStatus+1))}
 				for i := range req.Hashes {
-					req.Hashes[i] = f.randomTxHash()
+					req.Hashes[i] = fz.randomTxHash()
 				}
-				f.doFuzz(l.GetTxStatusMsg, req)
+				fz.doFuzz(l.GetTxStatusMsg, req)
 			}
 		}
 		return
