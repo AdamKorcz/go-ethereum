@@ -27,7 +27,7 @@ import (
 // for invalid opcode.
 func FuzzRuntimeNative(f *testing.F) {
 	f.Fuzz(func(t *testing.T, input1, input2 []byte) {
-		_, _, err := runtime.Execute(input1, input2, &runtime.Config{
+		_, _, _ = runtime.Execute(input1, input2, &runtime.Config{
 			GasLimit: 12000000,
 		})
 	})
