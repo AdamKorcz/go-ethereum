@@ -125,6 +125,5 @@ func FuzzRlpNative(f *testing.F) {
 			decodeEncode(input, &rs, i)
 		}
 		return
-		})
 	})
 }
