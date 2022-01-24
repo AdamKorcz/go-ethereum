@@ -19,6 +19,7 @@ package rlp
 import (
 	"bytes"
 	"fmt"
+	"testing"
 
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
