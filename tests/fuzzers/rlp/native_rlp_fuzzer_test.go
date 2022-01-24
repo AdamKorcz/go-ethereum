@@ -25,18 +25,6 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 )
 
-func decodeEncode(input []byte, val interface{}, i int) {
-	if err := rlp.DecodeBytes(input, val); err == nil {
-		output, err := rlp.EncodeToBytes(val)
-		if err != nil {
-			panic(err)
-		}
-		if !bytes.Equal(input, output) {
-			panic(fmt.Sprintf("case %d: encode-decode is not equal, \ninput : %x\noutput: %x", i, input, output))
-		}
-	}
-}
-
 func FuzzRlpNative(f *testing.F) {
 	f.Fuzz(func(t *testing.T, input []byte) {
 		if len(input) == 0 {
