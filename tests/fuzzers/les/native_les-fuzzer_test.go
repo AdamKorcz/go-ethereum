@@ -30,7 +30,7 @@ import (
 
 
 func FuzzLesNative(f *testing.F) {
-	f.Fuzz(func(t *testing.T, input []byte]) {
+	f.Fuzz(func(t *testing.T, input []byte) {
 		// We expect some large inputs
 		if len(input) < 100 {
 			return
