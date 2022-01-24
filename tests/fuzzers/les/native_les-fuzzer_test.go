@@ -23,13 +23,14 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	l "github.com/ethereum/go-ethereum/les"
+	"github.com/ethereum/go-ethereum/params"
 )
 
 
 
 
 func FuzzLesNative(f *testing.F) {
-	f.Fuzz(func(t *testing.T, input string) {
+	f.Fuzz(func(t *testing.T, input []byte]) {
 		// We expect some large inputs
 		if len(input) < 100 {
 			return
