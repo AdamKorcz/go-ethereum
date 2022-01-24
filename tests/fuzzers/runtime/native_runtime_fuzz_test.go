@@ -25,7 +25,7 @@ import (
 // This returns 1 for valid parsable/runable code, 0
 // for invalid opcode.
 func FuzzRuntimeNative(f *testing.F) {
-	f.Fuzz(func(t *testing.T, input1, input2 string) {
+	f.Fuzz(func(t *testing.T, input1, input2 []byte) {
 		_, _, err := runtime.Execute(input1, input2, &runtime.Config{
 			GasLimit: 12000000,
 		})

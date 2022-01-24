@@ -37,7 +37,7 @@ func decodeEncode(input []byte, val interface{}, i int) {
 }
 
 func FuzzRlpNative(f *testing.F) {
-	f.Fuzz(func(t *testing.T, input string) {
+	f.Fuzz(func(t *testing.T, input []byte) {
 		if len(input) == 0 {
 			return
 		}
